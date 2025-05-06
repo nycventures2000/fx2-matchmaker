@@ -26,12 +26,15 @@ export async function POST(req: NextRequest) {
 
   while (true) {
     const status = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-
     if (status.status === 'completed') {
       const messages = await openai.beta.threads.messages.list(thread.id);
-      const resultBlock = messages.data[0]?.content.find(
-        (c): c is { type: 'text'; text: { value: string; annotations: any[] } } => c.type === 'text'
+      const contentBlocks = messages.data[0]?.content ?? [];
+
+      const resultBlock = contentBlocks.find(
+        (block): block is { type: 'text'; text: { value: string; annotations: any[] } } =>
+          block.type === 'text' && 'text' in block
       );
+
       const result = resultBlock?.text?.value || 'No response';
       return new Response(JSON.stringify({ result }), { status: 200 });
     }
