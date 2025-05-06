@@ -1,13 +1,20 @@
 'use client';
 import { useState } from 'react';
+import Image from 'next/image';
 
 export default function Home() {
   const [input, setInput] = useState('');
-  const [response, setResponse] = useState('');
+  const [response, setResponse] = useState<string>('');
 
   return (
     <main className="min-h-screen bg-white text-black flex flex-col items-center justify-center px-4 py-8">
-      <img src="/fx2-logo.png" alt="Fx2 Logo" className="w-24 mb-4" />
+      <Image
+        src="/fx2-logo.png"
+        alt="Fx2 Logo"
+        width={96}
+        height={96}
+        className="mb-4"
+      />
       <h1 className="text-3xl font-bold mb-2">Fx² Matchmaker</h1>
       <p className="mb-6 text-center max-w-md">
         Your AI-powered investment matchmaker. Enter a prompt to begin.
@@ -33,7 +40,7 @@ export default function Home() {
 
             const data = await res.json();
             setResponse(data.result || 'No response from assistant.');
-          } catch (err: any) {
+          } catch (err) {
             console.error('Error submitting prompt:', err);
             setResponse('Something went wrong. Please try again.');
           }
