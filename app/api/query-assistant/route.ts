@@ -1,20 +1,6 @@
 import { OpenAI } from 'openai';
 import { NextRequest } from 'next/server';
 
-type TextAnnotation = {
-  type: string;
-  start: number;
-  end: number;
-};
-
-type TextBlock = {
-  type: 'text';
-  text: {
-    value: string;
-    annotations: TextAnnotation[];
-  };
-};
-
 export async function POST(req: NextRequest) {
   const { prompt } = await req.json();
 
@@ -40,21 +26,18 @@ export async function POST(req: NextRequest) {
 
   while (true) {
     const status = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-
     if (status.status === 'completed') {
       const messages = await openai.beta.threads.messages.list(thread.id);
       const contentBlocks = messages.data[0]?.content ?? [];
 
-      const resultBlock = contentBlocks.find((block): block is TextBlock => {
+      const resultBlock = contentBlocks.find((block) => {
         return (
           block.type === 'text' &&
-          typeof block.text === 'object' &&
-          typeof block.text.value === 'string' &&
-          Array.isArray(block.text.annotations)
+          typeof (block as any).text?.value === 'string'
         );
       });
 
-      const result = resultBlock?.text?.value || 'No response';
+      const result = (resultBlock as any)?.text?.value || 'No response';
       return new Response(JSON.stringify({ result }), { status: 200 });
     }
 
