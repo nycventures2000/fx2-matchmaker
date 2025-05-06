@@ -17,7 +17,7 @@ export default function Home() {
       />
       <h1 className="text-3xl font-bold mb-2">Fx² Matchmaker</h1>
       <p className="mb-6 text-center max-w-md">
-        Your AI-powered investment matchmaker. Enter a prompt to begin.
+        Your AI-powered investment matchmaker. <br /> Enter a prompt to begin.
       </p>
 
       <form
