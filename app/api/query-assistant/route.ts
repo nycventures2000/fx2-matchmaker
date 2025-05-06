@@ -1,6 +1,14 @@
 import { OpenAI } from 'openai';
 import { NextRequest } from 'next/server';
 
+type TextBlock = {
+  type: 'text';
+  text: {
+    value: string;
+    annotations: unknown[]; // ✅ Fixes ESLint error
+  };
+};
+
 export async function POST(req: NextRequest) {
   const { prompt } = await req.json();
 
@@ -12,7 +20,7 @@ export async function POST(req: NextRequest) {
 
   const openai = new OpenAI({ apiKey });
 
-  const assistantId = 'asst_3Q3w2JKGsuPciCeoScflzj7F'; // Replace with your actual Assistant ID
+  const assistantId = 'asst_3Q3w2JKGsuPciCeoScflzj7F';
   const thread = await openai.beta.threads.create();
 
   await openai.beta.threads.messages.create(thread.id, {
@@ -26,13 +34,16 @@ export async function POST(req: NextRequest) {
 
   while (true) {
     const status = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+
     if (status.status === 'completed') {
       const messages = await openai.beta.threads.messages.list(thread.id);
       const contentBlocks = messages.data[0]?.content ?? [];
 
       const resultBlock = contentBlocks.find(
-        (block): block is { type: 'text'; text: { value: string; annotations: unknown[] } } =>
-          block.type === 'text' && typeof (block as any).text?.value === 'string'
+        (block): block is TextBlock =>
+          block.type === 'text' &&
+          typeof (block as any).text?.value === 'string' &&
+          Array.isArray((block as any).text?.annotations)
       );
 
       const result = resultBlock?.text?.value || 'No response';
