@@ -31,8 +31,8 @@ export async function POST(req: NextRequest) {
       const contentBlocks = messages.data[0]?.content ?? [];
 
       const resultBlock = contentBlocks.find(
-        (block): block is { type: 'text'; text: { value: string; annotations: any[] } } =>
-          block.type === 'text' && 'text' in block
+        (block): block is { type: 'text'; text: { value: string; annotations: unknown[] } } =>
+          block.type === 'text' && typeof (block as any).text?.value === 'string'
       );
 
       const result = resultBlock?.text?.value || 'No response';
